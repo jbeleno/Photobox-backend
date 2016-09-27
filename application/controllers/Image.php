@@ -10,17 +10,21 @@ class Image extends CI_Controller {
 	 */
 	public function upload()
 	{
-		// Load the upload helper
-		$this->load->library('upload', $config);
+		// Load the s3 helper
+		$this->load->helper('s3');
 
-		// Getting the file metadata
-		$metadata = $this->upload->data();
+		// Getting the file extention
+		$path = $_FILES['image']['name'];
+		$ext = pathinfo($path, PATHINFO_EXTENSION);
 
 		// Setting up the image file to upload it correctly
 		$config['upload_path']          = './img/';
         $config['allowed_types']        = 'gif|jpg|png';
         $config['max_size']             = 10240;
-        $config['file_name']			= uniqid('img_');
+        $config['file_name']			= uniqid('img_').'.'.$ext;
+
+        // Load the upload class
+        $this->load->library('upload', $config);
 
         if ( ! $this->upload->do_upload('image'))
         {
@@ -35,7 +39,12 @@ class Image extends CI_Controller {
         }
         else
         {
-        	
+        	$metadata = $this->upload->data();
+
+        	$filePath = $metadata['full_path'];
+        	$fileName = $metadata['client_name'];
+
+        	s3_upload($fileName, $filePath);
         }
 	}
 }
