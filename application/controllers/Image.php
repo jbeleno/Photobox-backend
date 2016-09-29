@@ -14,8 +14,8 @@ class Image extends CI_Controller {
 		$this->load->helper('s3');
 
 		// Getting the file extention
-		$path = $_FILES['image']['name'];
-		$ext = pathinfo($path, PATHINFO_EXTENSION);
+		//$path = $_FILES['image']['name'];
+		$ext = "jpg";//pathinfo($path, PATHINFO_EXTENSION);
 
 		// Setting up the image file to upload it correctly
 		$config['upload_path']          = './img/';
@@ -45,6 +45,15 @@ class Image extends CI_Controller {
         	$fileName = $metadata['client_name'];
 
         	s3_upload($fileName, $filePath);
+
+                $response = array(
+                        'status'        => 'OK',
+                        'fileName'      => $fileName
+                );
+
+                $this->output
+                 ->set_content_type('application/json')
+                 ->set_output(json_encode($response));
         }
 	}
 }
